@@ -9,8 +9,16 @@ import { Camera, RefreshCw, Upload, Timer, Wand2 } from "lucide-react";
 const FILTERS = [
   { label: "Normal", value: "none" },
   { label: "B&W", value: "grayscale(100%)" },
+  { label: "Noir", value: "grayscale(100%) contrast(150%) brightness(80%)" },
   { label: "Sepia", value: "sepia(100%)" },
   { label: "Vintage", value: "sepia(50%) contrast(120%)" },
+  { label: "Retro", value: "sepia(30%) brightness(110%) saturate(140%)" },
+  { label: "Cold", value: "hue-rotate(180deg) saturate(80%) brightness(110%)" },
+  { label: "Warm", value: "sepia(20%) saturate(160%) brightness(100%)" },
+  { label: "Dramatic", value: "contrast(150%) saturate(120%) brightness(90%)" },
+  { label: "Vivid", value: "saturate(180%)" },
+  { label: "Soft", value: "blur(0.5px) brightness(110%) contrast(90%)" },
+  { label: "Cyber", value: "hue-rotate(90deg) saturate(150%)" },
 ];
 
 const TIMERS = [3, 5, 10];
@@ -25,10 +33,13 @@ export function CameraPreview() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const getMaxPhotos = (layout: FrameLayout | null) => {
     switch (layout) {
+      case '1-grid': return 1;
       case '2-grid': return 2;
+      case '2-strip': return 2;
       case '3-strip': return 3;
       case '4-grid': return 4;
       case '4-strip': return 4;
+      case '6-grid': return 6;
       case '9-grid': return 9;
       default: return 1;
     }
@@ -51,7 +62,6 @@ export function CameraPreview() {
         setCountdown(c);
         await new Promise((resolve) => setTimeout(resolve, 1000));
       }
-      
       setCountdown(null);
 
       const photoData = takePhoto(selectedFilter);
@@ -62,7 +72,6 @@ export function CameraPreview() {
         await new Promise((resolve) => setTimeout(resolve, 800));
       }
     }
-
     setIsCapturing(false);
     stopCamera();
     setStep(3);
@@ -113,13 +122,21 @@ export function CameraPreview() {
                   </Button>
                 ))}
               </div>
-              <div className="flex items-center gap-2">
-                <Wand2 className="w-4 h-4 text-muted-foreground" />
-                {FILTERS.map(f => (
-                  <Button key={f.value} size="sm" variant={selectedFilter === f.value ? 'default' : 'outline'} onClick={() => setFilter(f.value)}>
-                    {f.label}
-                  </Button>
-                ))}
+              <div className="flex items-center gap-2 max-w-75 md:max-w-md overflow-x-auto pb-2 scrollbar-hide">
+                <Wand2 className="w-4 h-4 text-muted-foreground shrink-0" />
+                <div className="flex gap-2">
+                  {FILTERS.map((f) => (
+                    <Button
+                      key={f.value}
+                      size="sm"
+                      variant={selectedFilter === f.value ? "default" : "outline"}
+                      onClick={() => setFilter(f.value)}
+                      className="whitespace-nowrap"
+                    >
+                      {f.label}
+                    </Button>
+                  ))}
+                </div>
               </div>
             </>
           )}
@@ -176,11 +193,11 @@ export function CameraPreview() {
 
       {!isCapturing && (
         <div className="flex gap-4">
-          <Button variant="outline" size="lg" onClick={() => setStep(1)}>
+          <Button variant="outline" size="lg" onClick={() => setStep(1)} className="cursor-pointer">
             Ganti Layout
           </Button>
           {mode === 'camera' && (
-            <Button size="lg" onClick={handleStartCapture} disabled={!isStreamActive} className="rounded-full px-12 text-lg">
+            <Button size="lg" onClick={handleStartCapture} disabled={!isStreamActive} className="rounded-full px-12 text-lg cursor-pointer">
               <Camera className="mr-2 h-5 w-5" />
               Mulai ({maxPhotos} Foto)
             </Button>
