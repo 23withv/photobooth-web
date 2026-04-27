@@ -31,30 +31,48 @@ export function LayoutSelectorStep() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-4xl gap-8 py-10 animate-in fade-in slide-in-from-bottom-4 duration-500">
-      <div className="text-center space-y-2">
-        <h2 className="text-3xl font-bold">Pilih Layout Frame</h2>
-        <p className="text-muted-foreground">Pilih tata letak foto yang ingin Anda gunakan</p>
+    <div className="flex flex-col items-center w-full max-w-5xl gap-6 py-12 px-4 animate-in fade-in slide-in-from-bottom-8 duration-700">
+      <div className="text-center space-y-4 mb-6">
+        <h2 className="text-4xl md:text-5xl font-extrabold tracking-tight">
+          Pilih <span className="text-primary italic">Layout.</span>
+        </h2>
+        <p className="text-muted-foreground text-lg max-w-md mx-auto">
+          Sesuaikan grid frame dengan momen yang ingin Anda abadikan.
+        </p>
       </div>
-      
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 w-full px-4">
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6 w-full">
         {LAYOUTS.map((layout) => {
           const Icon = layout.icon;
           return (
             <button
               key={layout.id}
               onClick={() => handleSelect(layout.id)}
-              className="group flex flex-col items-center justify-center gap-6 p-8 border-2 border-muted hover:border-primary rounded-3xl transition-all hover:shadow-md bg-card"
+              className="group relative flex flex-col items-center justify-center gap-5 p-6 md:p-8 rounded-[2rem] bg-card border border-border/40 shadow-sm hover:shadow-xl hover:-translate-y-1 hover:border-primary/50 transition-all duration-300 overflow-hidden"
             >
-              <Icon className="w-16 h-16 text-muted-foreground group-hover:text-primary transition-colors" strokeWidth={1.5} />
-              <span className="font-semibold text-lg">{layout.label}</span>
+              <div className="absolute inset-0 bg-linear-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="relative p-4 rounded-full bg-muted/50 group-hover:bg-background transition-colors duration-300 shadow-sm">
+                <Icon 
+                  className="w-10 h-10 md:w-12 md:h-12 text-muted-foreground group-hover:text-primary transition-colors duration-300" 
+                  strokeWidth={1.5} 
+                />
+              </div>
+              
+              <span className="font-bold text-base md:text-lg tracking-tight relative z-10">
+                {layout.label}
+              </span>
             </button>
           );
         })}
       </div>
 
-      <div className="pt-8">
-        <Button variant="ghost" onClick={() => setStep(0)}>
+      <div className="pt-10">
+        <Button 
+          variant="outline" 
+          size="lg" 
+          onClick={() => setStep(0)}
+          className="rounded-full px-8 h-12 font-semibold hover:bg-muted cursor-pointer"
+        >
           Kembali
         </Button>
       </div>
