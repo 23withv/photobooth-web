@@ -1,7 +1,7 @@
 "use client";
 
 import { useBoothStore } from "@/store/useBoothStore";
-import { LandingStep } from "@/components/booth/landingStep";
+import { LandingStep } from "@/app/landingStep";
 import { LayoutSelectorStep } from "@/components/booth/layoutSelectorStep";
 import { CameraPreview } from "@/components/booth/cameraPreview";
 import { CanvasEditor } from "@/components/booth/canvasEditor";

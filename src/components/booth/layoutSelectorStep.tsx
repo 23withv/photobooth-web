@@ -2,13 +2,23 @@
 
 import { Button } from "@/components/ui/button";
 import { useBoothStore, FrameLayout } from "@/store/useBoothStore";
-import { Layout, LayoutGrid, Rows3, Rows4 } from "lucide-react";
+import { LayoutGrid, Rows3, Rows4, Square, Columns2, Grid3X3, Grip, LucideIcon, Rows2 } from "lucide-react";
 
-const LAYOUTS: { id: FrameLayout; label: string; icon: any }[] = [
-  { id: '2-grid', label: '2 Foto (Grid)', icon: Layout },
-  { id: '3-strip', label: '3 Foto (Strip)', icon: Rows3 },
-  { id: '4-grid', label: '4 Foto (Grid)', icon: LayoutGrid },
-  { id: '4-strip', label: '4 Foto (Strip)', icon: Rows4 },
+interface LayoutOption {
+  id: FrameLayout;
+  label: string;
+  icon: LucideIcon;
+}
+
+const LAYOUTS: LayoutOption[] = [
+  { id: '1-grid', label: 'Single', icon: Square },
+  { id: '2-grid', label: '2 Foto (S)', icon: Rows2 },
+  { id: '2-strip', label: '2 Foto (H)', icon: Columns2 },
+  { id: '3-strip', label: '3 Foto (S)', icon: Rows3 },
+  { id: '4-grid', label: '4 Foto (G)', icon: LayoutGrid },
+  { id: '4-strip', label: '4 Foto (S)', icon: Rows4 },
+  { id: '6-grid', label: '6 Foto (G)', icon: Grip },
+  { id: '9-grid', label: '9 Foto (G)', icon: Grid3X3 },
 ];
 
 export function LayoutSelectorStep() {
