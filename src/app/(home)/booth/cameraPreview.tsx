@@ -4,7 +4,16 @@ import { useEffect, useState, useRef } from "react";
 import { useCamera } from "@/hooks/useCamera";
 import { Button } from "@/components/ui/button";
 import { useBoothStore } from "@/store/useBoothStore";
-import { Camera, RefreshCw, Upload, Timer, Wand2, Image as ImageIcon, ChevronDown, ChevronUp } from "lucide-react";
+import {
+  Camera,
+  RefreshCw,
+  Upload,
+  Timer,
+  Wand2,
+  Image as ImageIcon,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const FILTERS = [
@@ -25,8 +34,18 @@ const FILTERS = [
 const TIMERS = [3, 5, 10];
 
 export function CameraPreview() {
-  const { videoRef, startCamera, stopCamera, takePhoto, isStreamActive } = useCamera();
-  const { layoutType, timer, setTimer, selectedFilter, setFilter, addCapturedPhoto, setStep, clearPhotos } = useBoothStore();
+  const { videoRef, startCamera, stopCamera, takePhoto, isStreamActive } =
+    useCamera();
+  const {
+    layoutType,
+    timer,
+    setTimer,
+    selectedFilter,
+    setFilter,
+    addCapturedPhoto,
+    setStep,
+    clearPhotos,
+  } = useBoothStore();
   const [mode, setMode] = useState<"camera" | "upload">("camera");
   const [isCapturing, setIsCapturing] = useState(false);
   const [countdown, setCountdown] = useState<number | null>(null);
@@ -36,13 +55,22 @@ export function CameraPreview() {
 
   const maxPhotos = (() => {
     switch (layoutType) {
-      case "1-grid": return 1;
-      case "2-grid": case "2-strip": return 2;
-      case "3-strip": return 3;
-      case "4-grid": case "4-strip": return 4;
-      case "6-grid": return 6;
-      case "9-grid": return 9;
-      default: return 1;
+      case "1-grid":
+        return 1;
+      case "2-grid":
+      case "2-strip":
+        return 2;
+      case "3-strip":
+        return 3;
+      case "4-grid":
+      case "4-strip":
+        return 4;
+      case "6-grid":
+        return 6;
+      case "9-grid":
+        return 9;
+      default:
+        return 1;
     }
   })();
 
@@ -64,10 +92,21 @@ export function CameraPreview() {
       }
       setCountdown(null);
 
-      const photoData = takePhoto(selectedFilter);
-      if (photoData) addCapturedPhoto(photoData);
+      const burstFrames: string[] = [];
+      for (let f = 0; f < 8; f++) {
+        const frameData = takePhoto(selectedFilter);
+        if (frameData) burstFrames.push(frameData);
+        await new Promise((resolve) => setTimeout(resolve, 150));
+      }
+
+      if (burstFrames.length > 0) {
+        const middleFrame = burstFrames[Math.floor(burstFrames.length / 2)];
+        addCapturedPhoto(middleFrame);
+        useBoothStore.getState().addCapturedBurst(burstFrames);
+      }
+
       if (i < maxPhotos - 1)
-        await new Promise((resolve) => setTimeout(resolve, 800));
+        await new Promise((resolve) => setTimeout(resolve, 500));
     }
     setIsCapturing(false);
     stopCamera();
@@ -95,8 +134,8 @@ export function CameraPreview() {
   };
 
   return (
-    <div className="flex flex-col items-center w-full max-w-full mx-auto py-2 px-6 md:px-8 animate-in fade-in zoom-in-95 duration-500">
-      <div className="relative w-full aspect-3/4 md:aspect-video lg:aspect-21/9 overflow-hidden rounded-[2rem] bg-black border border-border/20 shadow-2xl ring-1 ring-white/5 transform-gpu will-change-transform">
+    <div className="flex flex-col items-center w-full animate-in fade-in zoom-in-95 duration-500">
+      <div className="relative w-full aspect-3/4 md:aspect-video lg:aspect-21/9 max-h-[80dvh] md:max-h-[85vh] overflow-hidden rounded-[2rem] bg-zinc-950 border border-border/20 shadow-2xl ring-1 ring-white/5 transform-gpu will-change-transform">
         {mode === "camera" ? (
           <video
             ref={videoRef}
@@ -118,8 +157,10 @@ export function CameraPreview() {
               <ImageIcon className="w-16 h-16 text-white/60 group-hover:text-white" />
             </div>
             <div className="text-center text-white">
-              <p className="font-semibold text-2xl">Klik untuk memilih file</p>
-              <p className="opacity-70">Pilih {maxPhotos} foto dari galeri</p>
+              <p className="font-semibold text-2xl">Click to select files</p>
+              <p className="opacity-70">
+                Choose {maxPhotos} photos from your gallery
+              </p>
             </div>
             <input
               type="file"
@@ -135,7 +176,7 @@ export function CameraPreview() {
         {isCapturing && (
           <div className="absolute inset-0 z-10 bg-black/20 flex flex-col items-center justify-center transition-all">
             <div className="absolute top-6 right-6 px-5 py-2.5 rounded-full bg-black/60 backdrop-blur-md text-white font-bold text-sm border border-white/10">
-              FOTO {currentShot} / {maxPhotos}
+              SHOT {currentShot} / {maxPhotos}
             </div>
             {countdown !== null && (
               <span className="text-[10rem] md:text-[14rem] font-black text-white drop-shadow-[0_0_60px_rgba(0,0,0,1)] animate-pulse">
@@ -157,32 +198,32 @@ export function CameraPreview() {
                   "hover:bg-white hover:text-black hover:border-white shadow-lg active:scale-95",
                 )}
               >
-                Kembali
+                Back
               </Button>
 
               <div className="flex gap-1 bg-black/40 backdrop-blur-md p-1 rounded-full border border-white/10 pointer-events-auto">
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant={mode === "camera" ? "default" : "ghost"}
                   onClick={() => setMode("camera")}
                   className={cn(
                     "rounded-full px-4 md:px-6 font-semibold transition-all text-white",
                     mode === "camera" && "bg-white text-black hover:bg-white",
                   )}
                 >
-                  <Camera className="w-4 h-4 md:mr-2" />{" "}
-                  <span className="hidden md:inline">Kamera</span>
+                  <Camera className="w-4 h-4 md:mr-2" />
+                  <span className="hidden md:inline">Camera</span>
                 </Button>
                 <Button
                   size="sm"
-                  variant="ghost"
+                  variant={mode === "upload" ? "default" : "ghost"}
                   onClick={() => setMode("upload")}
                   className={cn(
                     "rounded-full px-4 md:px-6 font-semibold transition-all text-white",
                     mode === "upload" && "bg-white text-black hover:bg-white",
                   )}
                 >
-                  <Upload className="w-4 h-4 md:mr-2" />{" "}
+                  <Upload className="w-4 h-4 md:mr-2" />
                   <span className="hidden md:inline">Upload</span>
                 </Button>
               </div>
@@ -201,9 +242,9 @@ export function CameraPreview() {
                   <button
                     onClick={handleStartCapture}
                     disabled={!isStreamActive}
-                    className="w-24 h-24 flex items-center justify-center rounded-full bg-white text-black shadow-[0_0_50px_rgba(255,255,255,0.4)] hover:scale-110 active:scale-90 transition-all cursor-pointer group"
+                    className="w-24 h-24 md:w-28 md:h-28 flex items-center justify-center rounded-full bg-white text-black shadow-[0_0_50px_rgba(255,255,255,0.4)] hover:scale-110 active:scale-90 transition-all cursor-pointer group"
                   >
-                    <Camera className="w-12 h-12 group-hover:rotate-12 transition-transform" />
+                    <Camera className="w-12 h-12 md:w-14 md:h-14 group-hover:rotate-12 transition-transform" />
                   </button>
                 </div>
 
@@ -219,7 +260,7 @@ export function CameraPreview() {
                     {isMenuExpanded && (
                       <div className="absolute left-16 whitespace-nowrap px-4 py-2 bg-black/80 backdrop-blur-md text-white text-sm font-bold rounded-full opacity-0 -translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all border border-white/10 flex items-center">
                         <span className="w-2 h-2 rounded-full bg-red-500 mr-2 animate-pulse" />
-                        Tutup
+                        Close
                       </div>
                     )}
                   </div>
@@ -282,7 +323,7 @@ export function CameraPreview() {
                       disabled={!isStreamActive}
                       className="rounded-full w-full md:w-auto px-10 bg-white text-black font-bold hover:bg-zinc-200 cursor-pointer"
                     >
-                      Mulai ({maxPhotos})
+                      Start ({maxPhotos})
                     </Button>
                   </div>
                 </div>
@@ -299,7 +340,7 @@ export function CameraPreview() {
               variant="outline"
               className="rounded-full border-white/20 text-white"
             >
-              <RefreshCw className="mr-2 h-4 w-4" /> Aktifkan Kamera
+              <RefreshCw className="mr-2 h-4 w-4" /> Enable Camera
             </Button>
           </div>
         )}

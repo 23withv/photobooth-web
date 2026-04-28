@@ -9,7 +9,20 @@ import Link from "next/link";
 
 export function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isScrolled, setIsScrolled] = useState(false);
   const setStep = useBoothStore((state) => state.setStep);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 20) {
+        setIsScrolled(true);
+      } else {
+        setIsScrolled(false);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
 
   useEffect(() => {
     if (isMenuOpen) {
@@ -24,8 +37,15 @@ export function Header() {
 
   return (
     <>
-      <header className="absolute top-0 left-0 right-0 z-50 flex justify-center w-full">
-        <div className="flex w-full max-w-7xl items-center justify-between p-6 md:p-8">
+      <header
+        className={cn(
+          "fixed top-0 left-0 right-0 z-50 flex justify-center w-full transition-all duration-300",
+          isScrolled
+            ? "bg-background/95 backdrop-blur-md border-b border-border/40 shadow-sm py-2" // <-- Ubah opacity dari 70 ke 95
+            : "bg-transparent py-4",
+        )}
+      >
+        <div className="flex w-full max-w-7xl items-center justify-between px-6 md:px-8">
           <Link
             href="/"
             onClick={() => setStep(0)}
@@ -50,14 +70,14 @@ export function Header() {
             <ModeToggle />
 
             <button
-              className="md:hidden p-2 -mr-2 text-foreground transition-transform active:scale-95"
+              className="md:hidden p-2 -mr-2 text-foreground transition-transform active:scale-95 cursor-pointer"
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle Menu"
             >
               {isMenuOpen ? (
-                <X className="w-6 h-6 cursor-pointer" />
+                <X className="w-6 h-6" />
               ) : (
-                <Menu className="w-6 h-6 cursor-pointer" />
+                <Menu className="w-6 h-6" />
               )}
             </button>
           </div>
