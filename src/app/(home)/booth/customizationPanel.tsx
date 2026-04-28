@@ -3,7 +3,7 @@
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Palette, Sticker} from "lucide-react";
+import { Palette, Sticker } from "lucide-react";
 
 interface CustomizationPanelProps {
   onAddSticker: (url: string) => void;
@@ -37,21 +37,31 @@ export function CustomizationPanel({
   onAddSticker,
   onChangeBackground,
 }: CustomizationPanelProps) {
-
-return (
+  return (
     <div className="w-full relative z-10">
       <Tabs defaultValue="sticker" className="w-full">
         <TabsList className="grid w-full grid-cols-2 bg-muted/50 p-1 rounded-full mb-6 h-12">
-          <TabsTrigger value="sticker" className="rounded-full font-semibold text-sm">
+          <TabsTrigger
+            value="sticker"
+            className="rounded-full font-semibold text-sm"
+          >
             <Sticker className="mr-2 h-4 w-4" /> Stiker
           </TabsTrigger>
-          <TabsTrigger value="color" className="rounded-full font-semibold text-sm">
+          <TabsTrigger
+            value="color"
+            className="rounded-full font-semibold text-sm"
+          >
             <Palette className="mr-2 h-4 w-4" /> Warna Latar
           </TabsTrigger>
         </TabsList>
 
-        <TabsContent value="sticker" className="space-y-4 animate-in fade-in duration-300">
-          <Label className="text-muted-foreground ml-2 font-medium">Pilih Stiker Estetik</Label>
+        <TabsContent
+          value="sticker"
+          className="space-y-4 animate-in fade-in duration-300"
+        >
+          <Label className="text-muted-foreground ml-2 font-medium">
+            Pilih Stiker Estetik
+          </Label>
           <div className="grid grid-cols-3 gap-4">
             {STICKERS.map((url, idx) => (
               <button
@@ -69,9 +79,14 @@ return (
           </div>
         </TabsContent>
 
-        <TabsContent value="color" className="space-y-6 animate-in fade-in duration-300 pt-2">
+        <TabsContent
+          value="color"
+          className="space-y-6 animate-in fade-in duration-300 pt-2"
+        >
           <div className="space-y-3">
-            <Label className="text-muted-foreground ml-2 font-medium">Input Kode HEX</Label>
+            <Label className="text-muted-foreground ml-2 font-medium">
+              Input Kode HEX
+            </Label>
             <div className="flex items-center gap-3 bg-muted/30 p-2 rounded-2xl border border-border/50 focus-within:border-primary/50 transition-colors">
               <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-background text-sm font-bold text-muted-foreground shadow-sm">
                 #
