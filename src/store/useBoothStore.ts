@@ -13,6 +13,7 @@ interface BoothState {
   finalPhotoUrl: string | null;
   finalGifUrl: string | null;
   finalRawGifUrl: string | null;
+  retakeIndex: number | null;
 
   setStep: (step: number) => void;
   setTimer: (seconds: number) => void;
@@ -20,6 +21,9 @@ interface BoothState {
   setFilter: (filter: string) => void;
   addCapturedPhoto: (photoUrl: string) => void;
   addCapturedBurst: (burst: string[]) => void;
+  updateCapturedPhoto: (index: number, photoUrl: string) => void;
+  updateCapturedBurst: (index: number, burst: string[]) => void;
+  setRetakeIndex: (index: number | null) => void;
   clearPhotos: () => void;
   setBackgroundColor: (color: string) => void;
   setFinalResult: (photo: string, gif: string, rawGif: string) => void;
@@ -36,6 +40,7 @@ export const useBoothStore = create<BoothState>()((set) => ({
   finalPhotoUrl: null,
   finalGifUrl: null,
   finalRawGifUrl: null,
+  retakeIndex: null,
   
   setStep: (step) => set({ currentStep: step }),
   setTimer: (seconds) => set({ timer: seconds }),
@@ -43,7 +48,18 @@ export const useBoothStore = create<BoothState>()((set) => ({
   setFilter: (filter) => set({ selectedFilter: filter }),
   addCapturedPhoto: (photoUrl) => set((state) => ({ capturedPhotos: [...state.capturedPhotos, photoUrl] })),
   addCapturedBurst: (burst) => set((state) => ({ capturedBursts: [...state.capturedBursts, burst] })),
-  clearPhotos: () => set({ capturedPhotos: [] }),
+  updateCapturedPhoto: (index, photoUrl) => set((state) => {
+    const newPhotos = [...state.capturedPhotos];
+    newPhotos[index] = photoUrl;
+    return { capturedPhotos: newPhotos };
+  }),
+  updateCapturedBurst: (index, burst) => set((state) => {
+    const newBursts = [...state.capturedBursts];
+    newBursts[index] = burst;
+    return { capturedBursts: newBursts };
+  }),
+  setRetakeIndex: (index) => set({ retakeIndex: index }),
+  clearPhotos: () => set({ capturedPhotos: [], capturedBursts: [], retakeIndex: null }),
   setBackgroundColor: (color) => set({ backgroundColor: color }),
   setFinalResult: (photo, gif, rawGif) => set({ finalPhotoUrl: photo, finalGifUrl: gif, finalRawGifUrl: rawGif }),
 }));

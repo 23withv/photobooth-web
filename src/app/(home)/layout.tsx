@@ -3,6 +3,7 @@
 import { useBoothStore } from "@/store/useBoothStore";
 import { Header } from "./header";
 import { Footer } from "./footer";
+import { cn } from "@/lib/utils";
 
 export default function HomeLayout({
   children,
@@ -14,23 +15,18 @@ export default function HomeLayout({
   const isHero = currentStep === 0;
 
   return (
-    <main className="relative flex min-h-screen flex-col bg-background overflow-x-hidden">
+    <main className="relative flex min-h-screen flex-col bg-background">
       {!isCameraPreview && <Header />}
-
-      <div className="flex w-full justify-center flex-1">
+      <div className="flex w-full justify-center flex-1 overflow-visible">
         <div
-          className={`flex flex-col w-full max-w-7xl items-center ${
-            isCameraPreview
-              ? "py-4 md:py-8 px-4 md:px-8"
-              : isHero
-                ? "pt-0 pb-8 px-6 md:px-8"
-                : "pt-24 pb-8 px-6 md:px-8"
-          }`}
+          className={cn(
+            "flex flex-col w-full max-w-7xl items-center overflow-visible",
+            isHero ? "pt-0 pb-0 px-6 md:px-8" : "pt-24 pb-0 px-6 md:px-8"
+          )}
         >
           {children}
         </div>
       </div>
-
       {!isCameraPreview && <Footer />}
     </main>
   );

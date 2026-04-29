@@ -3,7 +3,7 @@
 import { Button } from "@/components/ui/button";
 import { useBoothStore } from "@/store/useBoothStore";
 import { CardStack } from "./cardStack";
-import LiquidEther from "./liquidEther";
+import LiquidEther from "../../components/shared/liquidEther";
 import {
   ArrowRight,
   Sparkles,
@@ -19,37 +19,37 @@ const HERO_CARDS = [
     id: 1,
     title: "Premium Filters",
     icon: Sparkles,
-    bg: "bg-zinc-900/60 text-white border-white/10 backdrop-blur-xl",
+    bg: "bg-zinc-900/40 text-zinc-100 border-white/10 backdrop-blur-xl",
   },
   {
     id: 2,
     title: "Aesthetic Frames",
     icon: ImageIcon,
-    bg: "bg-zinc-800/60 text-zinc-100 border-white/10 backdrop-blur-xl",
+    bg: "bg-zinc-800/40 text-zinc-100 border-white/10 backdrop-blur-xl",
   },
   {
     id: 3,
     title: "High-Res Capture",
     icon: Camera,
-    bg: "bg-zinc-700/60 text-zinc-200 border-white/10 backdrop-blur-xl",
+    bg: "bg-zinc-700/40 text-zinc-100 border-white/10 backdrop-blur-xl",
   },
   {
     id: 4,
     title: "Custom Stickers",
     icon: Smile,
-    bg: "bg-zinc-800/60 text-white border-white/10 backdrop-blur-xl",
+    bg: "bg-zinc-800/40 text-zinc-100 border-white/10 backdrop-blur-xl",
   },
   {
     id: 5,
     title: "Instant Sharing",
     icon: Share2,
-    bg: "bg-zinc-900/60 text-zinc-100 border-white/10 backdrop-blur-xl",
+    bg: "bg-zinc-900/40 text-zinc-100 border-white/10 backdrop-blur-xl",
   },
   {
     id: 6,
     title: "GIF Animation",
     icon: Film,
-    bg: "bg-zinc-700/60 text-white border-white/10 backdrop-blur-xl",
+    bg: "bg-zinc-700/40 text-zinc-100 border-white/10 backdrop-blur-xl",
   },
 ];
 
@@ -61,14 +61,14 @@ export function Hero() {
       <div className="absolute top-0 bottom-0 left-[50%] right-[50%] ml-[-50vw] mr-[-50vw] w-screen z-0 overflow-hidden">
         <div className="absolute inset-0 opacity-30 dark:opacity-60 pointer-events-none">
           <LiquidEther
-            colors={["#5227FF", "#FF9FFC", "#B497CF"]}
-            mouseForce={20}
-            cursorSize={150}
+            colors={["#FF3D77", "#AD33FF", "#FFAA47"]}
+            mouseForce={15}
+            cursorSize={120}
             isViscous={true}
-            viscous={45}
-            resolution={0.5}
+            viscous={30}
+            resolution={0.4}
             autoDemo={true}
-            autoSpeed={0.5}
+            autoSpeed={0.8}
           />
         </div>
         <div className="absolute inset-0 bg-linear-to-r from-background via-background/40 to-transparent z-1" />
@@ -93,11 +93,14 @@ export function Hero() {
         <div className="pt-4 flex flex-col sm:flex-row gap-4 w-full sm:w-auto">
           <Button
             size="lg"
-            className="rounded-full px-10 h-16 text-lg font-bold shadow-2xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 group cursor-pointer"
+            className="group relative overflow-hidden rounded-full px-10 h-16 text-lg font-bold shadow-[0_0_50px_-12px_rgba(168,85,247,0.5)] transition-all hover:scale-105 active:scale-95 cursor-pointer" // DIUBAH: Shadow & overflow
             onClick={() => setStep(1)}
           >
-            Start Your Session
-            <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            <span className="relative z-10 flex items-center gap-2">
+              Start Your Session
+              <ArrowRight className="ml-1 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+            </span>
+            <div className="absolute inset-0 bg-linear-to-r from-primary via-purple-400 to-primary opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
           </Button>
         </div>
       </div>
