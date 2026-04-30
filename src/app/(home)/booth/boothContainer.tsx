@@ -11,6 +11,7 @@ import { HowItWorks } from "../howItWorks";
 import { FAQs } from "../faqs";
 import { FinalCTA } from "../finalCTA";
 import { PhotoPreviewStep } from "./photoPreviewStep";
+import { ScrollGallery } from "../gallery";
 
 export function BoothContainer() {
   const currentStep = useBoothStore((state) => state.currentStep);
@@ -21,6 +22,7 @@ export function BoothContainer() {
         <Hero />
         <KeyFeatures />
         <HowItWorks />
+        <ScrollGallery />
         <FAQs />
         <FinalCTA />
       </div>
