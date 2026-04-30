@@ -68,7 +68,7 @@ export function PhotoPreviewStep() {
               </Button>
               <Button
                 onClick={() => handleRetakeSingle(idx)}
-                className="rounded-full bg-primary text-white hover:bg-primary/90 shadow-lg cursor-pointer"
+                className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:-translate-y-1 transition-all cursor-pointer"
               >
                 <RefreshCcw className="w-4 h-4 mr-2" /> Retake
               </Button>
@@ -125,7 +125,7 @@ export function PhotoPreviewStep() {
             <div className="mt-8 flex gap-4">
               <Button
                 onClick={() => handleRetakeSingle(selectedPhotoIndex)}
-                className="h-14 px-8 rounded-full font-bold bg-primary text-white hover:bg-primary/90 shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:-translate-y-1 transition-all cursor-pointer"
+                className="h-14 px-8 rounded-full font-bold bg-primary text-primary-foreground hover:bg-primary/90 shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:-translate-y-1 transition-all cursor-pointer"
               >
                 <RefreshCcw className="w-5 h-5 mr-2" /> Retake This Shot
               </Button>
