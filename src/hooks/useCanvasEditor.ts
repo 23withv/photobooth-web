@@ -311,8 +311,8 @@ export const useCanvasEditor = (
       });
 
       if (currentStickers.length >= 20) {
-        toast.error("Tidak dapat menambah stiker", {
-          description: "Anda hanya bisa menambahkan hingga 20 stiker per frame",
+        toast.error("Limit reached", {
+          description: "You can only add up to 20 stickers per frame",
         });
         return;
       }

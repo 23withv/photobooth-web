@@ -14,6 +14,7 @@ import {
   Settings2,
   ChevronRight,
   FlipHorizontal,
+  ChevronDown,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -28,11 +29,20 @@ const FILTERS = [
   { label: "Cyber", value: "hue-rotate(90deg) saturate(150%)" },
 ];
 
-const TIMERS = [3, 5, 10];
+const TIMERS = [3, 5, 7, 10];
 
 export function CameraPreview() {
-  const { videoRef, startCamera, stopCamera, takePhoto, isStreamActive } =
-    useCamera();
+  const { 
+    videoRef, 
+    startCamera, 
+    stopCamera, 
+    takePhoto, 
+    isStreamActive, 
+    videoDevices, 
+    activeDeviceId, 
+    setActiveCamera 
+  } = useCamera();
+
   const {
     layoutType,
     timer,
@@ -44,7 +54,7 @@ export function CameraPreview() {
     clearPhotos,
     retakeIndex,
     isMirrored,
-    toggleMirror,
+    toggleMirror
   } = useBoothStore();
 
   const [mode, setMode] = useState<"camera" | "upload">("camera");
@@ -271,33 +281,48 @@ export function CameraPreview() {
           </AnimatePresence>
         </div>
 
-        <div className="flex justify-between items-center w-full z-20 md:absolute md:top-6 md:inset-x-0 md:px-6 pointer-events-none">
+        <div className="flex justify-between items-center w-full z-20 md:absolute md:top-6 md:inset-x-0 md:px-6 pointer-events-none gap-2">
           <button
             onClick={() => setStep(1)}
             className={cn(
-              "pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-md transition-all group cursor-pointer",
+              "pointer-events-auto flex items-center gap-2 px-4 py-2 rounded-xl backdrop-blur-md transition-all group cursor-pointer h-fit shrink-0",
               "bg-black/60 border border-white/10 text-white/90",
               "hover:bg-primary hover:border-primary hover:text-primary-foreground hover:shadow-[0_0_15px_rgba(168,85,247,0.4)]",
             )}
           >
             <ChevronLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-widest">
+            <span className="xs:inline text-[10px] font-black uppercase tracking-widest">
               Layout
             </span>
           </button>
-
-          <div className="pointer-events-auto flex items-center gap-3 px-4 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/10">
+          {videoDevices.length > 0 && (
+            <div className="relative pointer-events-auto flex-1 flex justify-center max-w-fit mx-auto">
+              <select
+                value={activeDeviceId || ""}
+                onChange={(e) => setActiveCamera(e.target.value)}
+                className="appearance-none bg-black/60 backdrop-blur-md border border-white/10 hover:bg-white/20 transition-colors rounded-xl py-2 pl-3 pr-8 text-[9px] sm:text-[10px] font-black tracking-widest text-white/90 uppercase outline-none cursor-pointer max-w-25 xs:max-w-[150px] sm:max-w-50 text-ellipsis"
+              >
+                {videoDevices.map((device, index) => (
+                  <option key={device.deviceId} value={device.deviceId} className="bg-zinc-900 text-white uppercase">
+                    {device.label || `Cam ${index + 1}`}
+                  </option>
+                ))}
+              </select>
+              <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-3 h-3 text-white/50 pointer-events-none" />
+            </div>
+          )}
+          <div className="pointer-events-auto flex items-center gap-3 px-4 py-2 rounded-xl bg-black/60 backdrop-blur-md border border-white/10 w-fit shrink-0">
             <div
               className={cn(
-                "w-2 h-2 rounded-full",
+                "w-2 h-2 rounded-full shrink-0",
                 isStreamActive ? "bg-red-500 animate-pulse" : "bg-zinc-600",
               )}
             />
-            <span className="text-[10px] font-black tracking-widest text-white/90 uppercase">
+            <span className="text-[10px] font-black tracking-widest text-white/90 uppercase whitespace-nowrap">
               {isCapturing
-                ? `Frame ${currentShot}/${maxPhotos}`
+                ? `${currentShot}/${maxPhotos}`
                 : retakeIndex !== null
-                  ? `Retaking Frame ${retakeIndex + 1}`
+                  ? `Retaking`
                   : "Ready"}
             </span>
           </div>
@@ -314,34 +339,56 @@ export function CameraPreview() {
                   className="pointer-events-auto w-full max-w-lg bg-zinc-950/95 backdrop-blur-2xl border border-white/20 rounded-2xl p-6 shadow-2xl"
                 >
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                    <div className="space-y-3">
-                      <label className="flex items-center gap-2 text-[10px] font-black text-white/50 uppercase tracking-widest">
-                        <Timer className="w-3.5 h-3.5 text-primary" /> Auto
-                        Timer
-                      </label>
-                      <div className="flex gap-2 bg-white/5 p-1 rounded-xl">
-                        {TIMERS.map((t) => (
-                          <button
-                            key={t}
-                            onClick={() => setTimer(t)}
-                            className={cn(
-                              "flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer",
-                              timer === t
-                                ? "bg-white text-black shadow-lg scale-[1.02]"
-                                : "text-white/40 hover:text-white hover:bg-white/10",
-                            )}
-                          >
-                            {t}s
-                          </button>
-                        ))}
+                    <div className="space-y-6">
+                      <div className="space-y-3">
+                        <label className="flex items-center gap-2 text-[10px] font-black text-white/50 uppercase tracking-widest">
+                          <Timer className="w-3.5 h-3.5 text-primary" /> Auto Timer
+                        </label>
+                        <div className="flex gap-2 bg-white/5 p-1 rounded-xl">
+                          {TIMERS.map((t) => (
+                            <button
+                              key={t}
+                              onClick={() => setTimer(t)}
+                              className={cn(
+                                "flex-1 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer",
+                                timer === t
+                                  ? "bg-white text-black shadow-lg scale-[1.02]"
+                                  : "text-white/40 hover:text-white hover:bg-white/10",
+                              )}
+                            >
+                              {t}s
+                            </button>
+                          ))}
+                        </div>
                       </div>
+
+                      {videoDevices.length > 0 && (
+                        <div className="space-y-3">
+                          <label className="flex items-center gap-2 text-[10px] font-black text-white/50 uppercase tracking-widest">
+                            <Camera className="w-3.5 h-3.5 text-primary" /> Camera Source
+                          </label>
+                          <div className="relative">
+                            <select
+                              value={activeDeviceId || ""}
+                              onChange={(e) => setActiveCamera(e.target.value)}
+                              className="w-full appearance-none bg-white/5 border border-white/10 hover:bg-white/20 transition-colors rounded-xl p-3 text-sm font-bold text-white/90 outline-none cursor-pointer focus:border-primary/50"
+                            >
+                              {videoDevices.map((device, index) => (
+                                <option key={device.deviceId} value={device.deviceId} className="bg-zinc-900 text-white">
+                                  {device.label || `Camera ${index + 1}`}
+                                </option>
+                              ))}
+                            </select>
+                            <ChevronDown className="absolute right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/50 pointer-events-none" />
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     <div className="space-y-3 w-full min-w-0 flex-1">
                       <div className="flex items-center justify-between">
                         <label className="flex items-center gap-2 text-[10px] font-black text-zinc-500 uppercase tracking-[0.2em] ml-1">
-                          <Wand2 className="w-3.5 h-3.5 text-primary" /> Grade
-                          Filter
+                          <Wand2 className="w-3.5 h-3.5 text-primary" /> Grade Filter
                         </label>
                         <div className="flex gap-1">
                           <button
@@ -412,11 +459,12 @@ export function CameraPreview() {
                   "p-3 sm:p-4 rounded-full transition-all group shrink-0 cursor-pointer",
                   showSettings
                     ? "text-primary bg-primary/10"
-                    : "text-white/40 hover:text-white",
+                    : "text-white/40 hover:text-white hover:bg-white/10",
                 )}
               >
                 <Settings2 className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
               </button>
+
               <button
                 onClick={toggleMirror}
                 className={cn(
@@ -435,6 +483,7 @@ export function CameraPreview() {
                 />
                 <span className="hidden sm:inline">{isMirrored ? "Mirrored" : "Flip"}</span>
               </button>
+
               <div className="h-8 w-px bg-white/10 shrink-0" />
               <button
                 onClick={handleStartCapture}
