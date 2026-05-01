@@ -14,6 +14,7 @@ interface BoothState {
   finalGifUrl: string | null;
   finalRawGifUrl: string | null;
   retakeIndex: number | null;
+  isMirrored: boolean;
 
   setStep: (step: number) => void;
   setTimer: (seconds: number) => void;
@@ -27,6 +28,7 @@ interface BoothState {
   clearPhotos: () => void;
   setBackgroundColor: (color: string) => void;
   setFinalResult: (photo: string, gif: string, rawGif: string) => void;
+  toggleMirror: () => void;
 }
 
 export const useBoothStore = create<BoothState>()((set) => ({
@@ -41,6 +43,7 @@ export const useBoothStore = create<BoothState>()((set) => ({
   finalGifUrl: null,
   finalRawGifUrl: null,
   retakeIndex: null,
+  isMirrored: true,
   
   setStep: (step) => set({ currentStep: step }),
   setTimer: (seconds) => set({ timer: seconds }),
@@ -62,4 +65,5 @@ export const useBoothStore = create<BoothState>()((set) => ({
   clearPhotos: () => set({ capturedPhotos: [], capturedBursts: [], retakeIndex: null }),
   setBackgroundColor: (color) => set({ backgroundColor: color }),
   setFinalResult: (photo, gif, rawGif) => set({ finalPhotoUrl: photo, finalGifUrl: gif, finalRawGifUrl: rawGif }),
+  toggleMirror: () => set((state) => ({ isMirrored: !state.isMirrored }))
 }));

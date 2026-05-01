@@ -11,6 +11,7 @@ import {
   X,
   Image as ImageIcon,
 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 export function PhotoPreviewStep() {
   const { capturedPhotos, setStep, clearPhotos, setRetakeIndex } =
@@ -58,19 +59,32 @@ export function PhotoPreviewStep() {
               alt={`Shot ${idx + 1}`}
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
-            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col items-center justify-center gap-3 backdrop-blur-sm">
+            <div
+              className={cn(
+                "absolute inset-0 flex transition-all duration-300",
+                "md:flex-col md:items-center md:justify-center md:opacity-0 md:group-hover:opacity-100 md:bg-black/70 md:backdrop-blur-sm",
+                "flex-row items-end justify-center gap-2 p-4 opacity-100 bg-linear-to-t from-black/95 via-black/40 to-transparent md:via-transparent md:to-transparent",
+              )}
+            >
               <Button
                 onClick={() => setSelectedPhotoIndex(idx)}
                 variant="outline"
-                className="rounded-full bg-white/10 border-white/20 text-white hover:bg-white hover:text-black shadow-lg cursor-pointer"
+                size="sm"
+                className="flex-1 md:flex-none h-11 rounded-full bg-zinc-900/90 border-white/20 text-white backdrop-blur-xl hover:bg-zinc-800 hover:border-white/40 shadow-xl cursor-pointer transition-all duration-300"
               >
-                <Maximize2 className="w-4 h-4 mr-2" /> Enlarge
+                <Maximize2 className="w-4 h-4 mr-2" />
+                <span className="text-[11px] md:text-sm font-bold">
+                  Enlarge
+                </span>
               </Button>
+
               <Button
                 onClick={() => handleRetakeSingle(idx)}
-                className="rounded-full bg-primary text-primary-foreground hover:bg-primary/90 shadow-lg hover:-translate-y-1 transition-all cursor-pointer"
+                size="sm"
+                className="flex-1 md:flex-none h-11 rounded-full bg-primary text-primary-foreground font-bold hover:bg-primary/90 shadow-[0_0_20px_rgba(168,85,247,0.4)] hover:-translate-y-0.5 transition-all cursor-pointer"
               >
-                <RefreshCcw className="w-4 h-4 mr-2" /> Retake
+                <RefreshCcw className="w-4 h-4 mr-2" />
+                <span className="text-[11px] md:text-sm font-bold">Retake</span>
               </Button>
             </div>
             <div className="absolute top-4 left-4 bg-black/50 backdrop-blur-md text-white text-xs font-black px-3 py-1.5 rounded-full border border-white/10">
@@ -109,9 +123,9 @@ export function PhotoPreviewStep() {
           >
             <button
               onClick={() => setSelectedPhotoIndex(null)}
-              className="absolute top-6 right-6 p-3 bg-white/10 hover:bg-white/20 rounded-full text-white transition-colors cursor-pointer"
+              className="absolute top-6 right-6 p-3 bg-red-500/10 hover:bg-red-500 border border-red-500/20 text-red-500 hover:text-white transition-all duration-300 rounded-full shadow-[0_0_15px_rgba(239,68,68,0.2)] hover:shadow-[0_0_25px_rgba(239,68,68,0.5)] backdrop-blur-md cursor-pointer"
             >
-              <X className="w-6 h-6" />
+              <X className="w-6 h-6" strokeWidth={3} />
             </button>
 
             <motion.img

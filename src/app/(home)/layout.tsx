@@ -15,7 +15,7 @@ export default function HomeLayout({
   const isHero = currentStep === 0;
 
   return (
-    <main className="relative flex min-h-screen flex-col bg-background">
+    <main className="relative flex min-h-screen flex-col bg-background w-full overflow-x-clip">
       {!isCameraPreview && <Header />}
       <div className="flex w-full justify-center flex-1 overflow-visible">
         <div

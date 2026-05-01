@@ -38,7 +38,7 @@ export function Header() {
   const scrollToSection = (sectionId: string) => {
     setIsMenuOpen(false);
     if (currentStep !== 0) setStep(0);
-    
+
     setTimeout(() => {
       const element = document.getElementById(sectionId);
       if (element) {
@@ -49,14 +49,14 @@ export function Header() {
 
   return (
     <>
-      <header className="fixed top-0 left-0 right-0 z-50 flex justify-center w-full px-4 py-4 md:px-6 md:py-6 pointer-events-none">
+      <header className="fixed top-0 inset-x-0 z-50 flex justify-center px-4 py-4 md:px-6 md:py-8 pointer-events-none">
         <div
           className={cn(
-            "flex w-full max-w-7xl items-center justify-between px-5 py-2.5 transition-all duration-500 pointer-events-auto",
-            "rounded-full border backdrop-blur-xl shadow-2xl",
-            isScrolled 
-              ? "bg-zinc-950/40 border-white/20 shadow-black/20" 
-              : "bg-transparent border-white/10 shadow-none"
+            "flex w-full max-w-7xl items-center justify-between px-6 py-3 transition-all duration-500 pointer-events-auto",
+            "rounded-full border backdrop-blur-2xl shadow-[0_8px_32px_rgba(0,0,0,0.3)]",
+            isScrolled
+              ? "bg-black/20 border-white/20 shadow-black/40"
+              : "bg-white/3 border-white/10 shadow-none",
           )}
         >
           <Link
@@ -69,7 +69,7 @@ export function Header() {
             className="flex items-center gap-2 text-xl md:text-2xl font-black tracking-tighter text-white hover:text-primary transition-colors active:scale-95"
           >
             <div className="w-8 h-8 rounded-full bg-primary flex items-center justify-center">
-               <Sparkles className="w-5 h-5 text-primary-foreground" />
+              <Sparkles className="w-5 h-5 text-primary-foreground" />
             </div>
             VibeSnap
           </Link>
@@ -85,7 +85,7 @@ export function Header() {
             ))}
           </nav>
           <div className="flex items-center gap-2">
-            <button 
+            <button
               onClick={() => setStep(1)}
               className="hidden md:block px-6 py-2.5 rounded-full bg-primary text-primary-foreground text-[11px] font-black tracking-widest uppercase hover:scale-105 active:scale-95 transition-all cursor-pointer shadow-[0_0_20px_rgba(168,85,247,0.4)]"
             >
@@ -96,7 +96,11 @@ export function Header() {
               onClick={() => setIsMenuOpen(!isMenuOpen)}
               aria-label="Toggle Menu"
             >
-              {isMenuOpen ? <X className="w-5 h-5" /> : <Menu className="w-5 h-5" />}
+              {isMenuOpen ? (
+                <X className="w-5 h-5" />
+              ) : (
+                <Menu className="w-5 h-5" />
+              )}
             </button>
           </div>
         </div>
@@ -104,10 +108,10 @@ export function Header() {
       <div
         className={cn(
           "fixed inset-x-4 top-24 z-40 flex flex-col overflow-hidden transition-all duration-500 md:hidden",
-          "rounded-[2rem] border border-white/20 bg-zinc-950/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]", 
-          isMenuOpen 
-            ? "translate-y-0 opacity-100 pointer-events-auto max-h-100 p-6" 
-            : "-translate-y-10 opacity-0 pointer-events-none max-h-0"
+          "rounded-[2rem] border border-white/20 bg-zinc-950/80 backdrop-blur-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)]",
+          isMenuOpen
+            ? "translate-y-0 opacity-100 pointer-events-auto max-h-100 p-6"
+            : "-translate-y-10 opacity-0 pointer-events-none max-h-0",
         )}
       >
         <nav className="flex flex-col gap-2">
@@ -121,7 +125,10 @@ export function Header() {
             </button>
           ))}
           <button
-            onClick={() => { setStep(1); setIsMenuOpen(false); }}
+            onClick={() => {
+              setStep(1);
+              setIsMenuOpen(false);
+            }}
             className="mt-4 w-full py-4 rounded-2xl bg-primary text-primary-foreground font-black uppercase tracking-widest text-sm cursor-pointer"
           >
             Start Session
@@ -129,8 +136,8 @@ export function Header() {
         </nav>
       </div>
       {isMenuOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-500" 
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 md:hidden animate-in fade-in duration-500"
           onClick={() => setIsMenuOpen(false)}
         />
       )}

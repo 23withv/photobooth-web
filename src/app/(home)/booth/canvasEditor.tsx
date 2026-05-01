@@ -2,16 +2,28 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { RefreshCcw, Sparkles, ArrowRight, Loader2, Paintbrush } from "lucide-react";
+import {
+  RefreshCcw,
+  Sparkles,
+  ArrowRight,
+  Loader2,
+  Paintbrush,
+  Trash2,
+} from "lucide-react";
 import { CustomizationPanel } from "./customizationPanel";
 import { useCanvasEditor } from "@/hooks/useCanvasEditor";
 import { useBoothStore } from "@/store/useBoothStore";
-import gifshot, { GifshotResult } from "gifshot";
-import { toast } from "sonner"; 
-
+import gifshot from "gifshot";
+import { toast } from "sonner";
+import { AnimatePresence, motion } from "framer-motion";
 export function CanvasEditor() {
-  const { capturedPhotos, capturedBursts, layoutType, clearPhotos, setStep, setFinalResult } =
-    useBoothStore();
+  const {
+    capturedPhotos,
+    capturedBursts,
+    layoutType,
+    setStep,
+    setFinalResult,
+  } = useBoothStore();
   const [isGenerating, setIsGenerating] = useState(false);
 
   const {
@@ -20,6 +32,8 @@ export function CanvasEditor() {
     addSticker,
     changeBackgroundColor,
     canvasHeight,
+    isStickerSelected,
+    deleteSelected,
   } = useCanvasEditor(capturedPhotos, layoutType);
 
   const handleBack = () => {
@@ -29,6 +43,11 @@ export function CanvasEditor() {
   const handleFinish = async () => {
     if (!fabricCanvas) return;
     setIsGenerating(true);
+
+    type FabricObjectWithMeta = import("fabric").fabric.Object & {
+      isSticker?: boolean;
+      slotBounds?: { x: number; y: number; w: number; h: number };
+    };
 
     try {
       fabricCanvas.discardActiveObject();
@@ -40,45 +59,82 @@ export function CanvasEditor() {
         multiplier: 1,
       });
 
-      const framedGifFrames: string[] = [];
-      const photoObjects = fabricCanvas
-        .getObjects()
-        .filter(
-          (obj) => obj.type === "image" && !(obj as any).isSticker,
-        ) as import("fabric").fabric.Image[];
+      const allObjects = fabricCanvas.getObjects();
+      const photoObjects = allObjects.filter((obj) => {
+        const imgObj = obj as FabricObjectWithMeta;
+        return obj.type === "image" && !imgObj.isSticker;
+      }) as FabricObjectWithMeta[];
 
-      photoObjects.sort(
-        (a, b) => (a.top || 0) - (b.top || 0) || (a.left || 0) - (b.left || 0),
-      );
+      photoObjects.sort((a, b) => {
+        const aTop = a.top ?? 0;
+        const bTop = b.top ?? 0;
+        const aLeft = a.left ?? 0;
+        const bLeft = b.left ?? 0;
+        return aTop - bTop || aLeft - bLeft;
+      });
 
       const burstLength = capturedBursts[0]?.length || 1;
+      const rawGifFrames: string[] = [];
+      const hiddenObjects: import("fabric").fabric.Object[] = [];
+      
+      allObjects.forEach((obj) => {
+        const isPhoto = photoObjects.some(p => p === obj);
+        if (!isPhoto && obj.visible) {
+          obj.visible = false;
+          hiddenObjects.push(obj);
+        }
+      });
+      fabricCanvas.renderAll();
+
+      const rawGifOutputWidth = 1000;
+      const rawGifOutputHeight = 744; 
+
+      for (const photoObj of photoObjects) {
+        const bounds = photoObj.slotBounds;
+        if (!bounds) continue;
+
+        const frameDataUrl = fabricCanvas.toDataURL({
+          format: "jpeg",
+          quality: 1,
+          left: bounds.x,
+          top: bounds.y,
+          width: bounds.w,
+          height: bounds.h,
+        });
+        rawGifFrames.push(frameDataUrl);
+      }
+
+      hiddenObjects.forEach((obj) => { obj.visible = true; });
+      fabricCanvas.renderAll();
+
+      const framedGifFrames: string[] = [];
 
       for (let frameIdx = 0; frameIdx < burstLength; frameIdx++) {
         const promises = photoObjects.map((obj, slotIdx) => {
           return new Promise((resolve) => {
             const burst = capturedBursts[slotIdx];
             const frameImg = burst ? burst[frameIdx] : capturedPhotos[slotIdx];
-            
-            obj.setSrc(frameImg, () => resolve(true), { crossOrigin: "anonymous" });
+            const imgElement = obj as import("fabric").fabric.Image;
+            imgElement.setSrc(frameImg, () => resolve(true), { crossOrigin: "anonymous" });
           });
         });
 
         await Promise.all(promises);
         fabricCanvas.renderAll();
+        
         framedGifFrames.push(
           fabricCanvas.toDataURL({
             format: "jpeg",
-            quality: 1,
-            multiplier: 1,
+            quality: 0.8,
+            multiplier: 0.5,
           }),
         );
       }
 
       const restorePromises = photoObjects.map((obj, j) => {
         return new Promise((resolve) => {
-          obj.setSrc(capturedPhotos[j], () => resolve(true), {
-            crossOrigin: "anonymous",
-          });
+          const imgElement = obj as import("fabric").fabric.Image;
+          imgElement.setSrc(capturedPhotos[j], () => resolve(true), { crossOrigin: "anonymous" });
         });
       });
       await Promise.all(restorePromises);
@@ -86,22 +142,29 @@ export function CanvasEditor() {
 
       const generateRawGif = new Promise<string>((resolve, reject) => {
         gifshot.createGIF(
-          { images: capturedPhotos, interval: 0.6, gifWidth: 800, gifHeight: 600 },
-          (obj: GifshotResult) => obj.error ? reject(obj.errorMsg) : resolve(obj.image)
+          {
+            images: rawGifFrames,
+            interval: 0.6,
+            gifWidth: rawGifOutputWidth,
+            gifHeight: rawGifOutputHeight,
+          },
+          (obj: import("gifshot").GifshotResult) => obj.error ? reject(obj.errorMsg) : resolve(obj.image)
         );
       });
 
       const generateFramedGif = new Promise<string>((resolve, reject) => {
         gifshot.createGIF(
-          { images: framedGifFrames, interval: 0.15, gifWidth: 540, gifHeight: canvasHeight / 2 },
-          (obj: GifshotResult) => obj.error ? reject(obj.errorMsg) : resolve(obj.image)
+          {
+            images: framedGifFrames,
+            interval: 0.15,
+            gifWidth: 540,
+            gifHeight: canvasHeight / 2,
+          },
+          (obj: import("gifshot").GifshotResult) => obj.error ? reject(obj.errorMsg) : resolve(obj.image)
         );
       });
 
-      const [rawGif, framedGif] = await Promise.all([
-        generateRawGif,
-        generateFramedGif,
-      ]);
+      const [rawGif, framedGif] = await Promise.all([generateRawGif, generateFramedGif]);
 
       setFinalResult(photoDataURL, framedGif, rawGif);
       setIsGenerating(false);
@@ -109,10 +172,7 @@ export function CanvasEditor() {
     } catch (error) {
       setIsGenerating(false);
       console.error("Gif Error:", error);
-      toast.error("Processing Failed", {
-        description: "An error occurred while generating the GIF/Image.",
-        position: "top-center"
-      });
+      toast.error("Processing Failed", { position: "top-center" });
     }
   };
 
@@ -129,7 +189,8 @@ export function CanvasEditor() {
           <Sparkles className="w-8 h-8 text-primary" />
         </h2>
         <p className="text-muted-foreground text-lg max-w-md mx-auto">
-          Decorate your memories with exclusive stickers or change the frame color before exporting.
+          Decorate your memories with exclusive stickers or change the frame
+          color before exporting.
         </p>
       </div>
 
@@ -175,11 +236,31 @@ export function CanvasEditor() {
                 )}
               </Button>
             </div>
-
-            <div className="bg-zinc-900/80 border border-white/10 shadow-2xl rounded-[2.5rem] p-6 md:p-8 backdrop-blur-2xl relative overflow-hidden w-full">
-              <div className="absolute -top-32 -right-32 w-64 h-64 bg-primary/20 rounded-full blur-[80px] pointer-events-none" />
-              <div className="absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
+            
+            <div className="bg-zinc-900/90 md:bg-zinc-900/80 border border-white/10 shadow-2xl rounded-[2.5rem] p-6 md:p-8 backdrop-blur-md md:backdrop-blur-2xl relative overflow-hidden w-full">
+              <div className="hidden md:block absolute -top-32 -right-32 w-64 h-64 bg-primary/20 rounded-full blur-[80px] pointer-events-none" />
+              <div className="hidden md:block absolute -bottom-32 -left-32 w-64 h-64 bg-blue-500/10 rounded-full blur-[80px] pointer-events-none" />
               <div className="relative z-10">
+                <AnimatePresence>
+                  {isStickerSelected && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0, marginBottom: 0 }}
+                      animate={{ opacity: 1, height: "auto", marginBottom: 24 }}
+                      exit={{ opacity: 0, height: 0, marginBottom: 0 }}
+                      className="overflow-hidden"
+                    >
+                      <Button
+                        onClick={deleteSelected}
+                        variant="destructive"
+                        className="w-full h-14 rounded-2xl font-bold shadow-xl shadow-red-500/20 cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <Trash2 className="w-5 h-5" />
+                        Remove Selected Sticker
+                      </Button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+
                 <CustomizationPanel
                   onAddSticker={addSticker}
                   onChangeBackground={changeBackgroundColor}
