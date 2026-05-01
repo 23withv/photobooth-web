@@ -1,5 +1,6 @@
 "use client";
 
+import { useBoothStore } from "@/store/useBoothStore";
 import { useState, useCallback, useRef } from "react";
 
 export const useCamera = () => {
@@ -59,6 +60,11 @@ export const useCamera = () => {
     const ctx = canvas.getContext("2d");
 
     if (ctx) {
+      const isMirrored = useBoothStore.getState().isMirrored;
+      if (isMirrored) {
+        ctx.translate(canvas.width, 0);
+        ctx.scale(-1, 1);     
+      }
       ctx.translate(canvas.width, 0);
       ctx.scale(-1, 1);     
       ctx.filter = cssFilter;

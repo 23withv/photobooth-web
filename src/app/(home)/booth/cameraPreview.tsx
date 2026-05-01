@@ -13,6 +13,7 @@ import {
   ChevronLeft,
   Settings2,
   ChevronRight,
+  FlipHorizontal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
@@ -42,7 +43,8 @@ export function CameraPreview() {
     setStep,
     clearPhotos,
     retakeIndex,
-    setRetakeIndex,
+    isMirrored,
+    toggleMirror,
   } = useBoothStore();
 
   const [mode, setMode] = useState<"camera" | "upload">("camera");
@@ -97,20 +99,14 @@ export function CameraPreview() {
 
   const maxPhotos = (() => {
     switch (layoutType) {
-      case "1-grid":
-        return 1;
+      case "1-grid": return 1;
       case "2-grid":
-      case "2-strip":
-        return 2;
-      case "3-strip":
-        return 3;
+      case "2-strip": return 2;
+      case "3-strip": return 3;
       case "4-grid":
-      case "4-strip":
-        return 4;
-      case "6-grid":
-        return 6;
-      case "9-grid":
-        return 9;
+      case "4-strip": return 4;
+      case "6-grid": return 6;
+      case "9-grid": return 9;
       default:
         return 1;
     }
@@ -220,8 +216,11 @@ export function CameraPreview() {
               ref={videoRef}
               autoPlay
               playsInline
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ transform: "scaleX(-1)", filter: selectedFilter }}
+              className="absolute inset-0 h-full w-full object-cover transition-transform duration-300"
+              style={{ 
+                transform: isMirrored ? "scaleX(-1)" : "scaleX(1)", 
+                filter: selectedFilter 
+              }}
             />
           ) : (
             <div
@@ -417,6 +416,24 @@ export function CameraPreview() {
                 )}
               >
                 <Settings2 className="w-5 h-5 group-hover:rotate-90 transition-transform duration-500" />
+              </button>
+              <button
+                onClick={toggleMirror}
+                className={cn(
+                  "flex items-center gap-2 p-3 sm:px-5 sm:py-4 rounded-full transition-all group shrink-0 cursor-pointer text-[10px] sm:text-xs font-bold uppercase tracking-widest",
+                  isMirrored
+                    ? "text-primary bg-primary/10"
+                    : "text-white/40 hover:text-white hover:bg-white/10",
+                )}
+                title="Flip Camera"
+              >
+                <FlipHorizontal 
+                  className={cn(
+                    "w-5 h-5 transition-transform duration-500",
+                    isMirrored ? "-scale-x-100" : "scale-x-100"
+                  )} 
+                />
+                <span className="hidden sm:inline">{isMirrored ? "Mirrored" : "Flip"}</span>
               </button>
               <div className="h-8 w-px bg-white/10 shrink-0" />
               <button

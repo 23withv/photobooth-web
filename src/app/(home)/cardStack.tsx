@@ -138,15 +138,15 @@ function CardRotate({
   const rotateX = useTransform(y, [-100, 100], [20, -20]);
   const rotateY = useTransform(x, [-100, 100], [-20, 20]);
 
-  function handleDragEnd(_: any, info: PanInfo) {
+  function handleDragEnd(_: MouseEvent | TouchEvent | PointerEvent, info: PanInfo) {
     if (
       Math.abs(info.offset.x) > sensitivity ||
       Math.abs(info.offset.y) > sensitivity
     ) {
-      onSendToBack();
+      onSendToBack()
     } else {
-      x.set(0);
-      y.set(0);
+      x.set(0)
+      y.set(0)
     }
   }
 

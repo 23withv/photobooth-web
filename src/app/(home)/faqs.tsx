@@ -7,10 +7,16 @@ import {
   useMotionValue,
   useMotionTemplate,
 } from "framer-motion";
-import { HelpCircle, ShieldCheck, Camera, Sparkles, Plus } from "lucide-react";
+import { HelpCircle, ShieldCheck, Camera, Sparkles, Plus, LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-const FAQ_ITEMS = [
+interface FAQItem {
+  question: string;
+  answer: string;
+  icon: LucideIcon;
+}
+
+const FAQ_ITEMS: FAQItem[]= [
   {
     question: "Are my photos private?",
     answer:
@@ -42,7 +48,7 @@ function FaqCard({
   isOpen,
   onClick,
 }: {
-  faq: any;
+  faq: FAQItem;
   isOpen: boolean;
   onClick: () => void;
 }) {
